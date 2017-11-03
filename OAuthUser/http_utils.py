@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 import re
-import json
+import sys
 import logging
-from urllib import urlencode
 from base64 import b64encode
 from httplib import HTTPSConnection, HTTPConnection, HTTPException
+
+
+if sys.version_info > (3, 0):
+    from urllib.parse import urlencode
+else:
+    from urllib import urlencode
 
 
 logger = logging.getLogger(__name__)

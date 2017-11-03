@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name="OAuthClientUser",
-    version='0.0.1',
+    version='0.0.3',
     description='A User Authenticate APP for OAuth2 of django-oauth-toolkit',
     long_description=long_description,
 
@@ -20,7 +20,7 @@ setup(
 
     license='MIT',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Internet :: WWW/HTTP :: Session',
         'License :: OSI Approved :: MIT License',
