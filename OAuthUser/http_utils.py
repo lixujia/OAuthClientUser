@@ -3,13 +3,14 @@ import re
 import sys
 import logging
 from base64 import b64encode
-from httplib import HTTPSConnection, HTTPConnection, HTTPException
 
 
 if sys.version_info > (3, 0):
     from urllib.parse import urlencode
+    from http.client import HTTPSConnection, HTTPConnection, HTTPException
 else:
     from urllib import urlencode
+    from httplib import HTTPSConnection, HTTPConnection, HTTPException
 
 
 logger = logging.getLogger(__name__)
