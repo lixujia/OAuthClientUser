@@ -44,6 +44,10 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
             except ObjectDoesNotExist:
                 user = user_model.objects.create(username=username)
 
+            remote_privileges_list = account_info.get('privileges', [])
+            if not hasattr(settings, 'OAUTH_CLIENT_PRIVILEGE_REQUIRED') or settings.OAUTH_CLIENT_PRIVILEGE_REQUIRED not in remote_privileges_list:
+                raise AuthenticationFailed('You has no permission to access the service.')
+
             if not hasattr(user, 'extra'):
                 TUserExtra.objects.create(
                     user=user,
@@ -52,13 +56,13 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
                     access_token=access_token,
                     token_type='Bearer',
                     expires_in=600,
-                    remote_privileges='|'.join(account_info.get('privileges')))
+                    remote_privileges='|'.join(remote_privileges_list))
             else:
                 user.extra.full_name = account_info.get('full_name')
                 user.extra.access_token = access_token
                 user.extra.token_type = 'Bearer'
                 user.extra.expires_in = 600
-                user.extra.remote_privileges = '|'.join(account_info.get('privileges'))
+                user.extra.remote_privileges = '|'.join(remote_privileges_list)
                 user.extra.save()
 
             TUserAccessToken.objects.create(
