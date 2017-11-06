@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model, login, logout
 from django.http.response import HttpResponseRedirect, HttpResponse
 from django.http.response import HttpResponseForbidden
+from rest_framework.exceptions import AuthenticationFailed
 
 from .http_utils import post_request, get_account_info
 from .models import TUserExtra
@@ -62,6 +63,10 @@ def api_oauth_granted_view(request):
         return HttpResponseForbidden()
 
     account_info = json.loads(response)
+    privilege_list = account_info.get('privileges', [])
+    if hasattr(settings, 'OAUTH_CLIENT_PRIVILEGE_REQUIRED') and settings.OAUTH_CLIENT_PRIVILEGE_REQUIRED not in privilege_list:
+        raise AuthenticationFailed('You have no permission to access the service.')
+
     username = account_info.get('username')
 
     user_model = get_user_model()

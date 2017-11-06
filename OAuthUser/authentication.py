@@ -45,8 +45,6 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
                 user = user_model.objects.create(username=username)
 
             remote_privileges_list = account_info.get('privileges', [])
-            if not hasattr(settings, 'OAUTH_CLIENT_PRIVILEGE_REQUIRED') or settings.OAUTH_CLIENT_PRIVILEGE_REQUIRED not in remote_privileges_list:
-                raise AuthenticationFailed('You has no permission to access the service.')
 
             if not hasattr(user, 'extra'):
                 TUserExtra.objects.create(
