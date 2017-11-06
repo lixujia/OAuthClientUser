@@ -73,7 +73,10 @@ def api_oauth_granted_view(request):
     try:
         user = user_model.objects.select_related('extra').get(username=username)
     except ObjectDoesNotExist:
-        user = user_model.objects.create(username=username)
+        if hasattr(settings, 'OAUTH_CLIENT_STAFF') and settings.OAUTH_CLIENT_STAFF:
+            user = user_model.objects.create(username=username, is_staff=True)
+        else:
+            user = user_model.objects.create(username=username)
 
     if not hasattr(user, 'extra'):
         TUserExtra.objects.create(
