@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
 import random
+import string
 import logging
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model, login, logout
 from django.http.response import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
@@ -13,12 +15,17 @@ from .models import TUserExtra
 
 
 logger = logging.getLogger(__name__)
+STATE_CHARS = string.ascii_letters + string.digits
 
 
 # Create your views here.
 def api_oauth_login_view(request):
+    state = ''.join([random.choice(STATE_CHARS) for i in range(16)])
+    redirect_url = request.content_params.get('next', settings.BASE_URL)
+    cache.set('OAUTH_GRANTED_REDIRECT_{}'.format(state), redirect_url, 600)
+
     params = {
-        'state': ''.join([random.choice('1234567890') for i in range(12)]),
+        'state': state,
         'client_id': settings.OAUTH_CLIENT_ID,
         'response_type': 'code',
         'redirect_uri': settings.OAUTH_REDIRECT_URI
@@ -99,4 +106,5 @@ def api_oauth_granted_view(request):
 
     login(request, user)
 
-    return HttpResponseRedirect(settings.BASE_URL)
+    redirect_url = cache.get('OAUTH_GRANTED_REDIRECT_{}'.format(state), settings.BASE_URL)
+    return HttpResponseRedirect(redirect_url)

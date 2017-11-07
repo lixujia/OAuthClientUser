@@ -102,3 +102,5 @@ class TUserAccessToken(models.Model):
         verbose_name = '用户AccessToken缓存'
         verbose_name_plural = '用户AccessToken缓存'
 
+
+
