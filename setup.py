@@ -28,6 +28,6 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     keywords='Django OAuth2 Authenticate UserData',
-    packages=find_packages(),
+    packages=find_packages(exclude=['test', 'manage.py']),
     install_requires=['django', 'djangorestframework'],
 )

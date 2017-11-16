@@ -9,8 +9,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model, login, logout
 from django.http.response import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.http.response import HttpResponseForbidden
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 from .http_utils import post_request, get_account_info
+from .serializers import UserSerializer
 from .models import TUserExtra
 
 
@@ -112,3 +116,11 @@ def api_oauth_granted_view(request):
 
     redirect_url = cache.get('OAUTH_GRANTED_REDIRECT_{}'.format(state), settings.BASE_URL)
     return HttpResponseRedirect(redirect_url)
+
+
+@api_view(['GET', ])
+@permission_classes([IsAuthenticated, ])
+def api_oauth_account_view(request):
+    serializer = UserSerializer(instance=request.user)
+
+    return Response(serializer.data)

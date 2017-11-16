@@ -1,0 +1,17 @@
+{% extends "rest_framework/base.html" %}
+
+{% block userlinks %}
+    {% if user.is_authenticated %}
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ request.user }}
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href='/api-oauth-logout/?next={{ request.path }}'>Log out</a></li>
+            </ul>
+        </li>
+    {% else %}
+        <li><a href='/api-oauth-login/?next={{ request.path }}'>Log in</a></li>
+    {% endif %}
+{% endblock %}
