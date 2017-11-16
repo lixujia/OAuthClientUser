@@ -21,7 +21,7 @@ STATE_CHARS = string.ascii_letters + string.digits
 # Create your views here.
 def api_oauth_login_view(request):
     state = ''.join([random.choice(STATE_CHARS) for i in range(16)])
-    redirect_url = request.content_params.get('next', settings.BASE_URL)
+    redirect_url = request.GET.get('next', settings.BASE_URL)
     cache.set('OAUTH_GRANTED_REDIRECT_{}'.format(state), redirect_url, 600)
 
     params = {
@@ -40,7 +40,11 @@ def api_oauth_login_view(request):
 
 def api_oauth_logout_view(request):
     logout(request)
-    return HttpResponseRedirect(settings.BASE_URL)
+    redirect_url = request.GET.get('next')
+    if redirect_url is not None:
+        return HttpResponseRedirect(redirect_url)
+
+    return HttpResponse('ok')
 
 
 def api_oauth_granted_view(request):
