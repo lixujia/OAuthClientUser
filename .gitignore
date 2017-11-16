@@ -1,6 +1,8 @@
 dist/
+build/
 *.egg-info/
 *.pyc
 __pycache__/
 .idea/
+.env/
 db.sqlite3
