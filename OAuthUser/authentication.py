@@ -12,9 +12,14 @@ from .models import TUserAccessToken, TUserExtra
 
 class OAuthAccessTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        auth = get_authorization_header(request).split()
+        auth_header = get_authorization_header(request)
+        if auth_header in ['', b'', None]:
+            print('No HTTP AUTHORIZATION HEADER found.')
+            return None
 
-        if auth is None or not isinstance(auth, list) or len(auth) < 2 or 'Bearer' != auth[0]:
+        auth = [str(a, encoding='utf-8') if isinstance(a, bytes) else a for a in auth_header.split(b' ')]
+        if auth is None or not isinstance(auth, list) or len(auth) < 2 or 'bearer' != auth[0].lower():
+            print('Not Bearer Token Authorization')
             return None
 
         access_token = auth[1]
@@ -33,6 +38,8 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
 
             status, response = get_account_info(settings.OAUTH_ACCOUNT_URL, 'Bearer', access_token)
             if status != 200:
+                print(status)
+                print(response)
                 raise AuthenticationFailed
 
             account_info = json.loads(response)

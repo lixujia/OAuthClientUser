@@ -101,6 +101,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'OAuthUser.authentication.OAuthAccessTokenAuthentication',
+    )
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -124,7 +133,7 @@ BASE_URL = '/api-oauth-account/'
 
 OAUTH_CLIENT_ID = 'w7hoYXMdxYfJhtjNQsqbiuDD3epLJqNgQYIEvhEX'
 OAUTH_CLIENT_SECRET = 'PinrzAFSoQXy5Iw3ocMQTN35gmiHOQkVAS00lLPxw16TRsieeeoNwLjJCb5hHqNpN4VRTbsmbVRh4QWmzvHkYLGZC3xBwtbPqTGNAr8xYNZiBznwKplpuVxvwcomsEky'
-OAUTH_REDIRECT_URI = 'http://localhost:9800/api-oauth-granted/'
+OAUTH_REDIRECT_URI = 'http://localhost:9900/api-oauth-granted/'
 OAUTH_AUTHENTICATE_TYPE = 'authorization_code'
 OAUTH_AUTHENTICATE_URL = 'https://api.renjinggai.com:7443/o/authorize'
 OAUTH_TOKEN_URL = 'https://api.renjinggai.com:7443/o/token/'
