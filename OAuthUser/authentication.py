@@ -17,7 +17,7 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
             print('No HTTP AUTHORIZATION HEADER found.')
             return None
 
-        auth = [str(a, encoding='utf-8') if isinstance(a, bytes) else a for a in auth_header.split(b' ')]
+        auth = [str(a.decode(encoding='utf-8')) if isinstance(a, bytes) else a for a in auth_header.split(b' ')]
         if auth is None or not isinstance(auth, list) or len(auth) < 2 or 'bearer' != auth[0].lower():
             print('Not Bearer Token Authorization')
             return None
