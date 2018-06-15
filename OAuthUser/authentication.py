@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
+from rest_framework.authentication import SessionAuthentication
 from .http_utils import get_account_info
 from .models import TUserAccessToken, TUserExtra
 
@@ -78,3 +79,6 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
             return user, access_token
 
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return
