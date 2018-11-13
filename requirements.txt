@@ -1,0 +1,6 @@
+Django==1.11.9
+djangorestframework==3.7.7
+djangorestframework-jwt==1.11.0
+requests==2.18.4
+twine==1.9.1
+cryptography==2.3.1

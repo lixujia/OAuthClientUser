@@ -105,6 +105,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'OAuthUser.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'OAuthUser.authentication.OAuthAccessTokenAuthentication',
     )
@@ -127,6 +128,22 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'stderr': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler'
+        }
+    },
+    'loggers': {
+        'OAuthUser': {
+            'handlers': ['stderr'],
+            'level': 'DEBUG'
+        }
+    }
+}
+
 
 STATIC_URL = '/static/'
 BASE_URL = '/api-oauth-account/'
@@ -138,3 +155,19 @@ OAUTH_AUTHENTICATE_TYPE = 'authorization_code'
 OAUTH_AUTHENTICATE_URL = 'https://api.renjinggai.com:7443/o/authorize'
 OAUTH_TOKEN_URL = 'https://api.renjinggai.com:7443/o/token/'
 OAUTH_ACCOUNT_URL = 'https://api.renjinggai.com:7443/api/account'
+
+JWT_AUTH = {
+    'JWT_DECODE_HANDLER': 'rest_framework_jwt.utils.jwt_decode_handler',
+    'JWT_PAYLOAD_HANDLER': 'rest_framework_jwt.utils.jwt_payload_handler',
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER': 'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+    'JWT_PUBLIC_KEY': '''-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuOKit73RksMWlM19D0x2
+CO3Zk4qtiMukFyD2EW7TkHfcQTPmVlbF8x50BExnRVvFBtxZe2xcMh6Ngl9IZIMs
+c4hxQ1MTOiWNMtyDlXmsmwjCBYOhOUVz/QMdu7G1VBeA9YcWJYhrkDq3hXkzFoTO
+R6CC0RohlS23erIQq6JHhoYthFUT3mg54O68CZrrsPy6UzvIJoyJB7FCBf4NpakB
+LVZdxHkWGZf3EV0duWeZs+FSG8a5nHE4c7D7hD44BdQ5YxTGsy60Phnwhdv8pFsn
+erUDpfibH/8Oi637QwxbtjicGEz1cnUEC15q/9ecTiLemBq4Z71nwWv8rs0qaa2R
+QwIDAQAB
+-----END PUBLIC KEY-----''',
+    'JWT_ALGORITHM': 'RS256'
+}

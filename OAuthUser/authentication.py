@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+import logging
+from base64 import b64decode
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
@@ -7,20 +9,24 @@ from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_jwt.settings import api_settings as jwt_settings
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from .http_utils import get_account_info
 from .models import TUserAccessToken, TUserExtra
+
+
+jwt_decode_handler = jwt_settings.JWT_DECODE_HANDLER
+logger = logging.getLogger('OAuthUser')
 
 
 class OAuthAccessTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = get_authorization_header(request)
         if auth_header in ['', b'', None]:
-            print('No HTTP AUTHORIZATION HEADER found.')
             return None
 
         auth = [str(a.decode(encoding='utf-8')) if isinstance(a, bytes) else a for a in auth_header.split(b' ')]
         if auth is None or not isinstance(auth, list) or len(auth) < 2 or 'bearer' != auth[0].lower():
-            print('Not Bearer Token Authorization')
             return None
 
         access_token = auth[1]
@@ -39,8 +45,6 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
 
             status, response = get_account_info(settings.OAUTH_ACCOUNT_URL, 'Bearer', access_token)
             if status != 200:
-                print(status)
-                print(response)
                 raise AuthenticationFailed
 
             account_info = json.loads(response)
@@ -82,3 +86,25 @@ class OAuthAccessTokenAuthentication(BaseAuthentication):
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return
+
+
+class JWTAuthentication(JSONWebTokenAuthentication):
+    def authenticate(self, request):
+        try:
+            user, jwt_value = super(JWTAuthentication, self).authenticate(request)
+        except TypeError:
+            return None
+
+        payload = jwt_decode_handler(jwt_value)
+
+        if not hasattr(user, 'extra'):
+            extra = TUserExtra.objects.create(user=user)
+        else:
+            extra = user.extra
+
+        extra.full_name = payload.get('nick_name')
+        extra.phone_number = payload.get('mobile')
+        extra.remote_privileges = '|'.join(payload.get('privileges', []))
+        extra.save()
+
+        return user, jwt_value
