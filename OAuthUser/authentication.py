@@ -16,6 +16,7 @@ from .models import TUserAccessToken, TUserExtra
 
 
 jwt_decode_handler = jwt_settings.JWT_DECODE_HANDLER
+jwt_get_username_from_payload = jwt_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 logger = logging.getLogger('OAuthUser')
 
 
@@ -108,3 +109,25 @@ class JWTAuthentication(JSONWebTokenAuthentication):
         extra.save()
 
         return user, jwt_value
+
+    def authenticate_credentials(self, payload):
+        """
+        Returns an active user that matches the payload's user id and email.
+        """
+        User = get_user_model()
+        username = jwt_get_username_from_payload(payload)
+
+        if not username:
+            msg = _('Invalid payload.')
+            raise AuthenticationFailed(msg)
+
+        try:
+            user = User.objects.get_by_natural_key(username)
+        except User.DoesNotExist:
+            user = User.objects.create(**{User.USERNAME_FIELD: username})
+
+        if not user.is_active:
+            msg = _('User account is disabled.')
+            raise AuthenticationFailed(msg)
+
+        return user

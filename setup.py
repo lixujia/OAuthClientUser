@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name="OAuthClientUser",
-    version='0.2.0',
+    version='0.2.1',
     description='A User Authenticate APP for OAuth2 of django-oauth-toolkit',
     long_description=long_description,
 
