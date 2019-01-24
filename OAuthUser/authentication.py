@@ -2,6 +2,7 @@
 import json
 import logging
 from base64 import b64decode
+from django.utils.translation import ugettext_lazy as _
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
@@ -98,15 +99,24 @@ class JWTAuthentication(JSONWebTokenAuthentication):
 
         payload = jwt_decode_handler(jwt_value)
 
-        if not hasattr(user, 'extra'):
-            extra = TUserExtra.objects.create(user=user)
-        else:
-            extra = user.extra
+        org = payload.get('org_id')
+        if org is None:
+            # 主token
+            if not hasattr(user, 'extra'):
+                extra = TUserExtra.objects.create(user=user)
+            else:
+                extra = user.extra
 
-        extra.full_name = payload.get('nick_name')
-        extra.phone_number = payload.get('mobile')
-        extra.remote_privileges = '|'.join(payload.get('privileges', []))
-        extra.save()
+            extra.full_name = payload.get('nick_name')
+            extra.phone_number = payload.get('mobile')
+            extra.remote_privileges = '|'.join(payload.get('privileges', []))
+            extra.save()
+
+        if hasattr(user, 'auth_method'):
+            user.auth_method = 'JWT'
+
+        if hasattr(user, 'jwt_token'):
+            user.jwt_token = self.get_jwt_value(request)
 
         return user, jwt_value
 
